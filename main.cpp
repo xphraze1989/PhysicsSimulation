@@ -1,11 +1,12 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <iostream>
 
 const int windowWidth = 1000;
 const int windowHeight = 800;
 
-const int cellQuantityX = 10;
-const int cellQuantityY = 10;
+const int cellQuantityX = 20;
+const int cellQuantityY = 20;
 
 sf::Color gridColor(30, 30, 30);
 sf::Font font;
@@ -26,8 +27,13 @@ struct Physics {
         sf::Vector2f gridPosition;
         std::vector<Entity> entities;
 
-        Cell(float x, float y, float width, float height) { 
-            //takes const int windowWidth and windowHeight and sets right size and position for the cell.  
+        // Default constructor
+        Cell() : gridSize(0, 0), gridPosition(0, 0) {}
+
+        // Existing constructor
+        Cell(float x, float y, float width, float height) {
+            gridSize = sf::Vector2f(width, height);
+            gridPosition = sf::Vector2f(x, y);
         }
 
         void addEntity(Ball ball, sf::Vector2f velocity, sf::Vector2f position) {
@@ -92,15 +98,21 @@ struct Physics {
 
 
     Physics(int windowSizeX, int windowSizeY, int gridQuantityX, int gridQuantityY) {
-        //takes windowwidth and windowhight and calculates the borders of the simulation
-        //it also creates instances of the grid with the right position on screen.
-    }
+        // Calculate the size of each cell
+        sf::Vector2f gridSize(windowSizeX / gridQuantityX, windowSizeY / gridQuantityY);
 
-    Physics(int windowSizeX, int windowSizeY) {
-        //takes windowwidth and windowhight and calculates the borders of the simulation only
-    }
+        // Resize the outer vector to have the correct number of rows
+        cells.resize(gridQuantityY);
 
-    // Rest of the Physics struct...
+        // For each row...
+        for (int y = 0; y < gridQuantityY; ++y) {
+            // For each cell in the current row...
+            for (int x = 0; x < gridQuantityX; ++x) {
+                // Construct the cell with the correct position and size
+                cells[y].push_back(Cell(x * gridSize.x, y * gridSize.y, gridSize.x, gridSize.y));
+            }
+        }
+    }
 };
 
 struct Debug {
@@ -109,7 +121,7 @@ struct Debug {
 
     Debug() {
         // Load the font (you'll need to provide the path to a .ttf file)
-        if (!font.loadFromFile("C:/Windows/Arial.ttf")) {
+        if (!font.loadFromFile("Arial.ttf")) {
             // handle error
         }
 
@@ -141,12 +153,21 @@ struct Debug {
             }
         }
     }
+
+    void printCellPositions(const std::vector<std::vector<Physics::Cell>>& cells) {
+        for (const auto& row : cells) {
+            for (const auto& cell : row) {
+                std::cout << "Cell at position (" << cell.gridPosition.x << ", " << cell.gridPosition.y << ")\n";
+            }
+        }
+    }
 };
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "My Window");
     Physics Physics(windowWidth, windowHeight, cellQuantityX, cellQuantityY);
     Debug Debug;
+    Debug.printCellPositions(Physics.cells);
 
     while (window.isOpen()) {
         // Process events
