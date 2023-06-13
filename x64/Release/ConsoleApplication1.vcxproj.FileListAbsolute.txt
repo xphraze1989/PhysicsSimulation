@@ -1,1 +1,1 @@
-C:\Users\daner\Documents\GitHub\PhysicsSimulation\x64\Release\ConsoleApplication1.exe
+C:\Users\daner\Documents\GitHub\PhysicsSimulation\x64\Release\PhysicsSimulation.exe
