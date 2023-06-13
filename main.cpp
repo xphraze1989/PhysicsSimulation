@@ -104,25 +104,54 @@ struct Physics {
 };
 
 struct Debug {
-    // Debugging code goes here...
+    sf::Font font;
+    sf::Text text;
+
+    Debug() {
+        // Load the font (you'll need to provide the path to a .ttf file)
+        if (!font.loadFromFile("C:/Windows/Arial.ttf")) {
+            // handle error
+        }
+
+        // Initialize the text object
+        text.setFont(font);
+        text.setCharacterSize(14); // in pixels
+        text.setFillColor(sf::Color::White);
+    }
+
+    void drawGrid(sf::RenderWindow& window, const std::vector<std::vector<Physics::Cell>>& cells) {
+        for (const auto& row : cells) {
+            for (const auto& cell : row) {
+                sf::RectangleShape rectangle(cell.gridSize);
+                rectangle.setPosition(cell.gridPosition);
+                rectangle.setOutlineThickness(1);
+                rectangle.setOutlineColor(sf::Color::White);
+                rectangle.setFillColor(sf::Color::Transparent);
+                window.draw(rectangle);
+            }
+        }
+    }
+
+    void drawBallCount(sf::RenderWindow& window, const std::vector<std::vector<Physics::Cell>>& cells) {
+        for (const auto& row : cells) {
+            for (const auto& cell : row) {
+                text.setString(std::to_string(cell.entities.size()));
+                text.setPosition(cell.gridPosition);
+                window.draw(text);
+            }
+        }
+    }
 };
-
-void setup(sf::RenderWindow& window) {
-    // Setup code goes here...
-    // For example, you might initialize some objects or load some resources.
-}
-
-void loop(sf::RenderWindow& window) {
-    // Main loop code goes here...
-    // This is where you would handle events, update your objects, and draw them.
-}
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "My Window");
-    setup(window);
+    Physics Physics(windowWidth, windowHeight, cellQuantityX, cellQuantityY);
+    Debug Debug;
 
     while (window.isOpen()) {
         // Process events
+        Debug.drawGrid(window, Physics.cells);
+        Debug.drawBallCount(window, Physics.cells);
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
@@ -130,7 +159,6 @@ int main() {
             }
         }
 
-        loop(window);
         window.display();
     }
 
